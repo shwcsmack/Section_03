@@ -31,21 +31,20 @@ void UGrabber::BeginPlay()
 }
 
 
-// Called every frame
+/// Called every frame
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// Get players viewpoint
+	/// Get players viewpoint
 	FVector PlayerViewPointLocation;
 	FRotator PlayerViewPointRotation;
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
 		PlayerViewPointLocation,
 		PlayerViewPointRotation
 	);
-	//UE_LOG(LogTemp, Warning, TEXT("%s %s"), *PlayerLocation->ToString(), *PlayerRotation->ToString());
 	
-	//draw a debug line
+	///draw a debug line
 	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
 
 
@@ -60,8 +59,21 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		10.f
 	);
 	
-	//Ray-Cast out to reach distance
+	///Setup query params
+	FCollisionQueryParams TraceParams(FName(TEXT("")), false, Owner);
 
-	//See what we hit
+	///Ray-Cast/Line-Trace out to reach distance
+	FHitResult LineTraceHit;
+
+	GetWorld()->LineTraceSingleByObjectType(
+		LineTraceHit,
+		PlayerViewPointLocation,
+		LineTraceEnd,
+		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
+		TraceParams
+		);
+	///See what we hit
+	FString ActorTouched = LineTraceHit.Actor->GetName(); //TODO this is crashing
+	//UE_LOG(LogTemp, Warning, TEXT("We are touching %s"), *ActorTouched);
 }
 

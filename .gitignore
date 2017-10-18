@@ -8,9 +8,10 @@
 */Saved
 BuildingEscape/Content/StarterContent/Textures
 BuildingEscape/Content/StarterContent/HDRI
+BuildingEscape/Content/StarterContent/Maps/
 
 ############################
 #      VS Generated Files  #
 ############################
 */.vs
-BuildingEscape/Content/StarterContent/Maps/
+
