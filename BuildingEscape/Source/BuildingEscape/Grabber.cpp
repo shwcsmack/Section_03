@@ -4,7 +4,9 @@
 #include "GameFramework/Actor.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
-#include "DrawDebugHelpers.h"
+#include "DrawDebugHelpers.h" //TODO remove this for production
+#include "PhysicsEngine/PhysicsHandleComponent.h"
+
 
 
 // Sets default values for this component's properties
@@ -24,9 +26,18 @@ void UGrabber::BeginPlay()
 	Super::BeginPlay();
 
 	Owner = GetOwner();
+	UE_LOG(LogTemp, Warning, TEXT("Grabber reporting in from %s"), *Owner->GetName());
 
-	FString ObjectName = Owner->GetName();
-	UE_LOG(LogTemp, Warning, TEXT("Grabber is on %s"), *ObjectName);
+	///Look for attached physics handler
+	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	if (PhysicsHandle)
+	{
+
+	}
+	else 
+	{
+		UE_LOG(LogTemp, Error, TEXT("No PhysicsHandle found on %s"), *Owner->GetName());
+	}
 	
 }
 
