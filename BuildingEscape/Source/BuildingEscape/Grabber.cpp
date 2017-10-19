@@ -44,25 +44,12 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		PlayerViewPointRotation
 	);
 	
-	///draw a debug line
-	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
 
-
-	DrawDebugLine(
-		GetWorld(),
-		PlayerViewPointLocation,
-		LineTraceEnd,
-		FColor(255, 0, 0),
-		false,
-		0.f,
-		0.f,
-		10.f
-	);
-	
 	///Setup query params
 	FCollisionQueryParams TraceParams(FName(TEXT("")), false, Owner);
 
 	///Ray-Cast/Line-Trace out to reach distance
+	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
 	FHitResult LineTraceHit;
 
 	GetWorld()->LineTraceSingleByObjectType(
@@ -73,7 +60,10 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		TraceParams
 		);
 	///See what we hit
-	FString ActorTouched = LineTraceHit.Actor->GetName(); //TODO this is crashing
-	//UE_LOG(LogTemp, Warning, TEXT("We are touching %s"), *ActorTouched);
+	AActor* ActorHit = LineTraceHit.GetActor();
+	if (ActorHit)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("We are touching %s"), *ActorHit->GetName());
+	}
 }
 
