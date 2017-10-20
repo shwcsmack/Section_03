@@ -6,6 +6,7 @@
 #include "Engine/World.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/PrimitiveComponent.h"
 
 
 
@@ -65,7 +66,20 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	
+	///if physics is attached move the object were holding
+	if (PhysicsHandle->GrabbedComponent) {
+		/// Get players viewpoint
+		FVector PlayerViewPointLocation;
+		FRotator PlayerViewPointRotation;
+		GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
+			PlayerViewPointLocation,
+			PlayerViewPointRotation
+		);
+		///Ray-Cast/Line-Trace out to reach distance
+		FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
+		
+		PhysicsHandle->SetTargetLocation(LineTraceEnd);
+	}
 }
 
 FHitResult UGrabber::GetFirstPhysicsBodyInReach()
@@ -77,13 +91,13 @@ FHitResult UGrabber::GetFirstPhysicsBodyInReach()
 		PlayerViewPointLocation,
 		PlayerViewPointRotation
 	);
+	///Ray-Cast/Line-Trace out to reach distance
+	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
 
 
 	///Setup query params
 	FCollisionQueryParams TraceParams(FName(TEXT("")), false, Owner);
 
-	///Ray-Cast/Line-Trace out to reach distance
-	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
 	FHitResult LineTraceHit;
 
 	GetWorld()->LineTraceSingleByObjectType(
@@ -107,16 +121,30 @@ void UGrabber::Grab()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Grab Pressed"));
 
-	//try to reach any actors with physics body collision channel set
-	GetFirstPhysicsBodyInReach();
+	///try to reach any actors with physics body collision channel set
+	auto HitResult = GetFirstPhysicsBodyInReach();
+	auto ComponentToGrab = HitResult.GetComponent();
+	auto ActorHit = HitResult.GetActor();
+
 
 	//If we hit something then attach a physics handle
-}
+	if (ActorHit)
+	{
+		PhysicsHandle->GrabComponent(
+			ComponentToGrab,
+			NAME_None,
+			ComponentToGrab->GetOwner()->GetActorLocation(),
+			true
+		);
+	}
+	}
+	
 
 void UGrabber::Release()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Grab Released"));
 
 	//release physics handle
+	PhysicsHandle->ReleaseComponent();
 }
 
