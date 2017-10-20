@@ -6,6 +6,7 @@
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h" //TODO remove this for production
 #include "PhysicsEngine/PhysicsHandleComponent.h"
+#include "Components/InputComponent.h"
 
 
 
@@ -37,6 +38,18 @@ void UGrabber::BeginPlay()
 	else 
 	{
 		UE_LOG(LogTemp, Error, TEXT("No PhysicsHandle found on %s"), *Owner->GetName());
+	}
+
+	///Look for attached input component
+	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+	if (InputComponent)
+	{
+		//Bind input axis
+		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("No InputHandle found on %s"), *Owner->GetName());
 	}
 	
 }
@@ -76,5 +89,10 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	{
 		UE_LOG(LogTemp, Warning, TEXT("We are touching %s"), *ActorHit->GetName());
 	}
+}
+
+void UGrabber::Grab()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Grab Pressed"));
 }
 
